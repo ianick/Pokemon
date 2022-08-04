@@ -2,11 +2,7 @@ package com.pokemon.bellTest.cliente;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.pokemon.bellTest.BellTestApplication;
-import com.pokemon.bellTest.model.Results;
-import com.pokemon.bellTest.util.DataMapper;
-import com.pokemon.bellTest.util.WireMockServers;
 import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 

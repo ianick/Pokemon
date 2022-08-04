@@ -1,19 +1,24 @@
 package com.pokemon.bellTest.model;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.google.gson.annotations.SerializedName;
+import lombok.*;
 
-import java.util.List;
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+import java.util.Set;
+
+@ToString
 public class Results {
-    @JsonProperty("results")
-    List<PokemonDto> results;
+    @SerializedName("results")
+    private Set<PokemonDto> results;
+
+    public Results(Set<PokemonDto> results) {
+        this.results = results;
+    }
+
+    public Set<PokemonDto> getResults() {
+        return results;
+    }
+
+    public void setResults(Set<PokemonDto> results) {
+        this.results = results;
+    }
 }

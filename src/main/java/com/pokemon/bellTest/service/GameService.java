@@ -1,6 +1,6 @@
 package com.pokemon.bellTest.service;
 
-import com.pokemon.bellTest.Client.PokemonResponse;
+import com.pokemon.bellTest.model.PokemonResponse;
 import com.pokemon.bellTest.exception.InvalidGameException;
 import com.pokemon.bellTest.exception.InvalidParamException;
 import com.pokemon.bellTest.exception.NotFoundException;
@@ -10,16 +10,22 @@ import com.pokemon.bellTest.model.PokemonDto;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 public class GameService implements GameAPI {
-    private PokemonResponse pokemonResponse;
     public Results listOfPokemonDtosResult;
     private PokemonDto pokemonDto;
     private Set<PokemonDto> pokemonDtos;
-    public GameService() {
+    public GameService() throws IOException {
+
+        Set<PokemonDto> resList=new HashSet<>();
+       PokemonResponse pokemonResponse=new PokemonResponse();
+       PokemonResponse response=  pokemonResponse.getlistPokemonDto("https://pokeapi.co/api/v2/pokemon?limit=50&offset=0");
+
+        Set<PokemonDto> copy = new HashSet<>(response.getResults());
+
+       pokemonDtos = (pokemonResponse.getlistPokemonDtoWithPokemonDetails(copy)); ;
     }
 
     public static boolean exists(String gameId) {
@@ -33,24 +39,30 @@ public class GameService implements GameAPI {
 
     @Override
     public PokemonDto getPokemon(String name) {
-       if(name==null)return null;
-        return (PokemonDto) pokemonDtos.stream().filter(pokemonDto1 -> pokemonDto1.getName().toUpperCase().equals(name));
+        if(name==null){return null;}
+
+        PokemonDto pokemonDto1 = pokemonDtos
+                .stream()
+                .filter(pokemonDto2 -> pokemonDto2.getName().equals(name))
+                .findFirst()
+                .orElse(null);
+        return pokemonDto1;
     }
 
     @Override
-    public Game newGame(Player player) throws IOException {
+    public Game newGame(Player player) {
 
         Game game=Game
                 .builder()
                 .player1(player)
                 .status(GameStatus.START)
                 .gameId(UUID.randomUUID().toString())
+                .listAllPokemon(pokemonDtos)
                 .build();
 
         Storage.getInstance().setGame(game);
 
-        PokemonResponse response=  pokemonResponse.getlistPokemonDto("https://pokeapi.co/api/v2/pokemon?limit=50&offset=0");
-        pokemonDtos = pokemonResponse.getlistPokemonDtoWithPokemonDetails((Set<PokemonDto>) response.getResults());
+
         return game;
     }
 

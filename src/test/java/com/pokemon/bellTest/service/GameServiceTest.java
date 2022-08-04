@@ -37,12 +37,7 @@ public class GameServiceTest {
                 .winner(PokemonDto.builder()
                         .name("Iverton")
                         .url("/pokemos")
-                        .position(PositionDto
-                                .builder()
-                                .CoordinateX(12)
-                                .CoordinateY(12)
-                                .build()
-                        ).build())
+                        .build())
                 .status(GameStatus.IN_PROGRESS)
                 .build();
         Player player = Mockito.mock(Player.class);

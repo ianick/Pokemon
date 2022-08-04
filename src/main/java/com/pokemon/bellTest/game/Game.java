@@ -6,11 +6,14 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Data
 @Builder
 @Getter
 @Setter
 public class Game {
+    private Set<PokemonDto> listAllPokemon;
     private String gameId;
     private Player player1;
     private Player player2;
