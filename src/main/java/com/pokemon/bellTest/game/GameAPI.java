@@ -3,22 +3,23 @@ package com.pokemon.bellTest.game;
 import com.pokemon.bellTest.exception.InvalidGameException;
 import com.pokemon.bellTest.exception.InvalidParamException;
 import com.pokemon.bellTest.exception.NotFoundException;
-import com.pokemon.bellTest.game.Game;
-import com.pokemon.bellTest.game.Gameplay;
-import com.pokemon.bellTest.game.Player;
-import com.pokemon.bellTest.model.ListOfPokemonDto;
 import com.pokemon.bellTest.model.PokemonDto;
-import reactor.core.publisher.Flux;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import java.io.IOException;
 
 
 public interface GameAPI {
 
-    public Game connectToGame(Player player2, String gameId) throws InvalidParamException, InvalidGameException;
-    public Game connectToRandomGame(Player player2) throws NotFoundException;
-    public Game gamePlay(Gameplay gamePlay);
-    public Boolean checkWinner(int[][] board, PokemonDto pokemon);
-    public Flux<ListOfPokemonDto> getPokemon();
+    @PostMapping("/start/{player}")
+    public Game newGame(Player player) throws IOException;
+    @PostMapping("/connect")
+    public Game connectToGame(@RequestBody Player player2,@RequestParam String gameId) throws InvalidParamException, InvalidGameException;
+    @PostMapping("/connectToRandomGame")
+    public Game connectToRandomGame(@RequestBody Player player2) throws NotFoundException;
 
+    @PostMapping("/gameplay")
+    public Game gamePlay(@RequestBody Gameplay request) throws NotFoundException, InvalidGameException;
+    @RequestMapping(value="/{name}", method=RequestMethod.POST)
+    public PokemonDto getPokemon(@PathVariable("name") String name);
 }

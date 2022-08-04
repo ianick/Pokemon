@@ -1,71 +1,60 @@
 package com.pokemon.bellTest.service;
 
-import com.pokemon.bellTest.Client.PokemonClient;
-import com.pokemon.bellTest.game.GameAPI;
+import com.pokemon.bellTest.Client.PokemonResponse;
 import com.pokemon.bellTest.exception.InvalidGameException;
 import com.pokemon.bellTest.exception.InvalidParamException;
 import com.pokemon.bellTest.exception.NotFoundException;
-import com.pokemon.bellTest.game.Game;
-import com.pokemon.bellTest.game.GameStatus;
-import com.pokemon.bellTest.game.Gameplay;
-import com.pokemon.bellTest.game.Player;
-import com.pokemon.bellTest.model.ListOfPokemonDto;
+import com.pokemon.bellTest.game.*;
+import com.pokemon.bellTest.model.Results;
 import com.pokemon.bellTest.model.PokemonDto;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
+import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
-@Service
-@Slf4j
+@Component
 public class GameService implements GameAPI {
-
-    public Set<ListOfPokemonDto> listOfPokemonDtos;
-    @Value("${myrest.url}")
-    private final static String URL_BASE="https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0";
-    private final WebClient webClient;
-
-    private PokemonClient pokemonClient;
-
-    public GameService(WebClient.Builder builder) {
-        webClient = builder
-                .baseUrl(URL_BASE)
-                .build();
+    private PokemonResponse pokemonResponse;
+    public Results listOfPokemonDtosResult;
+    private PokemonDto pokemonDto;
+    private Set<PokemonDto> pokemonDtos;
+    public GameService() {
     }
 
-    public Game newGame(Player player){
+    public static boolean exists(String gameId) {
+        return false;
+    }
+
+
+    public Set<PokemonDto> getListPokemon() {
+        return pokemonDtos;
+    }
+
+    @Override
+    public PokemonDto getPokemon(String name) {
+       if(name==null)return null;
+        return (PokemonDto) pokemonDtos.stream().filter(pokemonDto1 -> pokemonDto1.getName().toUpperCase().equals(name));
+    }
+
+    @Override
+    public Game newGame(Player player) throws IOException {
 
         Game game=Game
                 .builder()
                 .player1(player)
-                .board(new int[10][10])
                 .status(GameStatus.START)
                 .gameId(UUID.randomUUID().toString())
                 .build();
 
         Storage.getInstance().setGame(game);
+
+        PokemonResponse response=  pokemonResponse.getlistPokemonDto("https://pokeapi.co/api/v2/pokemon?limit=50&offset=0");
+        pokemonDtos = pokemonResponse.getlistPokemonDtoWithPokemonDetails((Set<PokemonDto>) response.getResults());
         return game;
     }
-    @Override
-    public Flux<ListOfPokemonDto> getPokemon() {
-        log.info("Searching Pokemons ");
-        return webClient.get()
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .onStatus(HttpStatus::is4xxClientError,
-                        error -> Mono.error(new RuntimeException("check the parameters")))
-                .bodyToFlux(ListOfPokemonDto.class);
 
-    }
+
     @Override
     public Game connectToGame(Player player2, String gameId) throws InvalidParamException, InvalidGameException {
         if (!Storage.getInstance().getGames().containsKey(gameId)) {
@@ -97,11 +86,12 @@ public class GameService implements GameAPI {
 
         return null;
     }
-    @Override
-    public Boolean checkWinner(int[][] board, PokemonDto pokemon) {
+
+    public Boolean checkWinner( PokemonDto pokemon) {
 
         return false;
     }
+
 
 
 }
