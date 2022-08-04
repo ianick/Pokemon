@@ -1,17 +1,25 @@
 package com.pokemon.bellTest.game;
 
+import com.pokemon.bellTest.exception.InvalidGameException;
+import com.pokemon.bellTest.exception.InvalidParamException;
+import com.pokemon.bellTest.exception.NotFoundException;
 import com.pokemon.bellTest.model.PokemonDto;
-import com.pokemon.bellTest.model.Results;
-import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 
-@FeignClient(name = "pokemonFeignClient", url = "https://pokeapi.co/api/v2")
+
 public interface GameAPI {
 
-    @RequestMapping(method=RequestMethod.GET)
-    public Results getPokemon(@RequestParam(value = "limit") Long limit, @RequestParam(value = "offset") long offset);
+    @PostMapping("/start/{player}")
+    public Game newGame(Player player) throws IOException;
+    @PostMapping("/connect")
+    public Game connectToGame(@RequestBody Player player2,@RequestParam String gameId) throws InvalidParamException, InvalidGameException;
+    @PostMapping("/connectToRandomGame")
+    public Game connectToRandomGame(@RequestBody Player player2) throws NotFoundException;
 
-    @GetMapping("/{name}")
+    @PostMapping("/gameplay")
+    public Game gamePlay(@RequestBody Gameplay request) throws NotFoundException, InvalidGameException;
+    @RequestMapping(value="/{name}", method=RequestMethod.POST)
     public PokemonDto getPokemon(@PathVariable("name") String name);
 }

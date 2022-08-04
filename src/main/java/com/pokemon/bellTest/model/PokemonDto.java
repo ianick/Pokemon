@@ -1,19 +1,24 @@
 package com.pokemon.bellTest.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.pokemon.bellTest.Client.PokemonDetails;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class PokemonDto {
+    @JsonProperty("name")
     private String name;
+    @JsonProperty("url")
     private String url;
-    private String height;
-    private String weight;
+    @JsonProperty("position")
     private PositionDto position;
+    @JsonProperty("pokemonDetails")
+    private PokemonDetails pokemonDetails;
+
 }

@@ -1,35 +1,24 @@
 package com.pokemon.bellTest.service;
 
+import com.pokemon.bellTest.Client.PokemonResponse;
 import com.pokemon.bellTest.exception.InvalidGameException;
 import com.pokemon.bellTest.exception.InvalidParamException;
 import com.pokemon.bellTest.exception.NotFoundException;
-import com.pokemon.bellTest.game.Game;
-import com.pokemon.bellTest.game.GameStatus;
-import com.pokemon.bellTest.game.Gameplay;
-import com.pokemon.bellTest.game.Player;
+import com.pokemon.bellTest.game.*;
 import com.pokemon.bellTest.model.Results;
 import com.pokemon.bellTest.model.PokemonDto;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
-@Service
-@Slf4j
-public class GameService {
-
+@Component
+public class GameService implements GameAPI {
+    private PokemonResponse pokemonResponse;
     public Results listOfPokemonDtosResult;
-
-
-
-    @Value("${myrest.url}")
-    private final static String URL_BASE="https://pokeapi.co/api/v2/pokemon";
-   // private final WebClient webClient;
-
     private PokemonDto pokemonDto;
-    private Set<PokemonDto> listPokemonDtos;
+    private Set<PokemonDto> pokemonDtos;
     public GameService() {
     }
 
@@ -37,7 +26,20 @@ public class GameService {
         return false;
     }
 
-    public Game newGame(Player player){
+
+    public Set<PokemonDto> getListPokemon() {
+        return pokemonDtos;
+    }
+
+    @Override
+    public PokemonDto getPokemon(String name) {
+       if(name==null)return null;
+        return (PokemonDto) pokemonDtos.stream().filter(pokemonDto1 -> pokemonDto1.getName().toUpperCase().equals(name));
+    }
+
+    @Override
+    public Game newGame(Player player) throws IOException {
+
         Game game=Game
                 .builder()
                 .player1(player)
@@ -46,18 +48,14 @@ public class GameService {
                 .build();
 
         Storage.getInstance().setGame(game);
+
+        PokemonResponse response=  pokemonResponse.getlistPokemonDto("https://pokeapi.co/api/v2/pokemon?limit=50&offset=0");
+        pokemonDtos = pokemonResponse.getlistPokemonDtoWithPokemonDetails((Set<PokemonDto>) response.getResults());
         return game;
     }
-    public Results getPokemon( Results listOfPokemonDtosResult) {
-        log.info("Searching Pokemons ");
-        return null;
-    }
 
-    public PokemonDto getPokemon(String name) {
 
-        return this.getPokemon(name);
-    }
-
+    @Override
     public Game connectToGame(Player player2, String gameId) throws InvalidParamException, InvalidGameException {
         if (!Storage.getInstance().getGames().containsKey(gameId)) {
             throw new InvalidParamException("Game with provided id doesn't exist");
@@ -73,6 +71,7 @@ public class GameService {
         Storage.getInstance().setGame(game);
         return game;
     }
+    @Override
     public Game connectToRandomGame(Player player2) throws NotFoundException {
         Game game = Storage.getInstance().getGames().values().stream()
                 .filter(it -> it.getStatus().equals(GameStatus.START))
@@ -82,14 +81,17 @@ public class GameService {
         Storage.getInstance().setGame(game);
         return game;
     }
+    @Override
     public Game gamePlay(Gameplay gamePlay)  {
 
         return null;
     }
+
     public Boolean checkWinner( PokemonDto pokemon) {
 
         return false;
     }
+
 
 
 }

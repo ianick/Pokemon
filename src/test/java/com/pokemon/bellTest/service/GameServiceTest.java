@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
+
 import static org.mockito.ArgumentMatchers.any;
 
 
@@ -24,7 +26,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testCreateGame(){
+    public void testCreateGame() throws IOException {
 
         Game game = Game.builder()
                 .player1(Player
@@ -34,7 +36,6 @@ public class GameServiceTest {
                 .gameId("123456789")
                 .winner(PokemonDto.builder()
                         .name("Iverton")
-                        .height("30")
                         .url("/pokemos")
                         .position(PositionDto
                                 .builder()
